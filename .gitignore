@@ -12,8 +12,9 @@ wheels/
 # Downloaded upstream sources
 /upstream/
 
-# Intermediate results
+# Intermediate results and the built font
 /work/
+/out/
 
 # Local files
 .DS_Store

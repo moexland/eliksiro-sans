@@ -1,0 +1,46 @@
+FONTLOG for Eliksiro Sans
+-------------------------
+
+This file provides detailed information on the Eliksiro Sans Font Software.
+This information should be distributed along with the Eliksiro Sans fonts and
+any derivative works.
+
+
+Basic Font Information
+----------------------
+
+Eliksiro Sans is a Simplified Chinese sans-serif variable font, with weights
+from Thin (100) to Bold (700). It is a modified version of Frex Sans GB 1.100
+by The Frex Sans Project Authors, with the characters it lacks taken from
+IBM Plex Sans SC 1.1.0 by IBM Corp.
+
+Eliksiro Sans is licensed under the SIL Open Font License, Version 1.1; see
+OFL.txt. It is built with the pipeline at
+https://github.com/moexland/eliksiro-sans.
+
+
+ChangeLog
+---------
+
+27 October 2026 (Moonchime) Eliksiro Sans Version 0.100
+- Added the 16,291 code points of IBM Plex Sans SC that Frex Sans GB lacks.
+  Two compatibility ideographs and eight GB 18030 private-use code points map
+  to the Frex Sans GB glyphs of the same characters; the others take the
+  IBM Plex Sans SC glyphs, with Frex Sans GB's vertical origin (880) and
+  vertical advance (1000).
+- Renamed to Eliksiro Sans.
+- Line metrics: ascender 880, descender -120 and line gap 500 in both hhea
+  and OS/2, with USE_TYPO_METRICS on, so that ideographs sit in the middle of
+  the line; OS/2 win ascent and descent from the bounds of all glyphs.
+
+
+Acknowledgements
+----------------
+
+N: The Frex Sans Project Authors
+W: https://github.com/maoken-fonts/frex-sans
+D: Frex Sans GB, which Eliksiro Sans is based on
+
+N: IBM Corp.
+W: https://github.com/IBM/plex
+D: IBM Plex Sans SC, the source of the characters added to Frex Sans GB

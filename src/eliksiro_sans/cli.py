@@ -4,7 +4,7 @@ import argparse
 import logging
 from collections.abc import Callable
 
-from . import merge, upstream
+from . import build, merge, upstream
 
 COMMANDS: dict[str, tuple[Callable[[], object], str]] = {
     "fetch": (
@@ -13,8 +13,9 @@ COMMANDS: dict[str, tuple[Callable[[], object], str]] = {
     ),
     "merge": (
         merge.merge,
-        "merge the IBM Plex Sans SC supplement into copies of the Frex masters",
+        "write Eliksiro Sans's masters: Frex's, with the IBM Plex Sans SC supplement",
     ),
+    "build": (build.build, "compile the variable font into out/"),
 }
 
 

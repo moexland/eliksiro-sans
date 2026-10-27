@@ -6,6 +6,8 @@ ROOT = Path(__file__).resolve().parents[2]
 UPSTREAM = ROOT / "upstream"
 WORK = ROOT / "work"
 MERGED = WORK / "merged"
+COMPILED = WORK / "compiled"
+OUT = ROOT / "out"
 
 FREX_CLONE = UPSTREAM / "frex-sans"
 FREX_SOURCES = FREX_CLONE / "sources" / "FrexSansGBVF"

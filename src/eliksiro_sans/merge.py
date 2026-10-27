@@ -1,13 +1,14 @@
-"""Merging the IBM Plex Sans SC supplement into copies of Frex Sans GB's masters."""
+"""Eliksiro Sans's masters: copies of Frex Sans GB's, with the IBM Plex Sans SC
+supplement merged in."""
 
 import logging
 from pathlib import Path
 
 import glyphsLib
 import ufoLib2
-from fontTools.designspaceLib import DesignSpaceDocument
 
-from .paths import FREX_DESIGNSPACE, FREX_MASTERS, MERGED, PLEX_GLYPHS
+from . import fontinfo
+from .paths import FREX_MASTERS, MERGED, PLEX_GLYPHS
 from .sources import load_glyphs, supplement_codepoints
 
 MASTERS = ("Thin", "Regular", "Bold")
@@ -69,13 +70,9 @@ def merge(out_dir: Path = MERGED) -> Path:
             glyph.lib["public.verticalOrigin"] = VERTICAL_ORIGIN
             font.layers.defaultLayer.insertGlyph(glyph, name, copy=False)
         font.glyphOrder = [*font.glyphOrder, *glyphs]
+        fontinfo.apply(font.info)
         font.save(out_dir / f"{master}.ufo", overwrite=True)
 
-    designspace = DesignSpaceDocument.fromfile(FREX_DESIGNSPACE)
-    for source in designspace.sources:
-        assert source.filename is not None
-        source.path = str(out_dir / Path(source.filename).name)
-        source.filename = None
-    path = out_dir / FREX_DESIGNSPACE.name
-    designspace.write(path)
+    path = out_dir / f"{fontinfo.FAMILY}.designspace"
+    fontinfo.designspace(out_dir).write(path)
     return path
