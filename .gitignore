@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Downloaded upstream sources
+/upstream/
+
 # Local files
 .DS_Store
 /.claude/worktrees/
