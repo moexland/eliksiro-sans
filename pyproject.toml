@@ -1,0 +1,14 @@
+[project]
+name = "eliksiro-sans"
+version = "0.1.0"
+description = "Eliksiro Sans build pipeline"
+readme = "README.md"
+authors = [
+    { name = "Moonchime", email = "moonchime@moex.email" }
+]
+requires-python = ">=3.15"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
