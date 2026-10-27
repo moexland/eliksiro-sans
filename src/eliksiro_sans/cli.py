@@ -4,12 +4,16 @@ import argparse
 import logging
 from collections.abc import Callable
 
-from . import upstream
+from . import merge, upstream
 
-COMMANDS: dict[str, tuple[Callable[[], None], str]] = {
+COMMANDS: dict[str, tuple[Callable[[], object], str]] = {
     "fetch": (
         upstream.fetch,
         "fetch the upstream sources into upstream/ and check their contents",
+    ),
+    "merge": (
+        merge.merge,
+        "merge the IBM Plex Sans SC supplement into copies of the Frex masters",
     ),
 }
 
