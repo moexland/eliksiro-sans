@@ -51,6 +51,7 @@ For readers who enjoy the nerdy details:
 - 码位映射：U+F995、U+F9E7、U+F9F1三个兼容汉字指向秊、裏、隣的字形，以补全GBK；U+22EF ⋯与械黑GB居中的省略号同形，IBM的源文件里没有这个字。
 - 圆点：取自IBM Plex Sans的`bullet`，放大到1.05倍，与械黑GB西文相对IBM Plex Sans的放大比例一致。
 - 格式：CFF2可变字体，字重100至700，含8个命名实例；另有供网页使用的WOFF2版本，字体相同，只是经过压缩。
+- 网页切片：npm包`@moexland/eliksiro-sans`以Google Fonts的简体中文切片表为底，把字体切成两百余个WOFF2切片；拉丁字母、标点与全角字符全部并入最常用的第一片，使字距调整、标点挤压在它们之间照常生效。
 
 <!-- 分开中英两个列表 | keeps the two lists apart -->
 
@@ -58,6 +59,7 @@ For readers who enjoy the nerdy details:
 - Code points: the compatibility ideographs U+F995, U+F9E7 and U+F9F1 map to the glyphs of 秊, 裏 and 隣, completing GBK; U+22EF ⋯ looks like Frex Sans GB's centred ellipsis, as IBM's sources have no glyph for it.
 - Bullet: IBM Plex Sans's `bullet`, scaled by 1.05, the factor by which Frex Sans GB's Latin enlarges IBM Plex Sans.
 - Format: a CFF2 variable font, with weights from 100 to 700 and eight named instances; also as WOFF2 for the web, the same font compressed.
+- Web slices: the npm package `@moexland/eliksiro-sans` slices the font into over two hundred WOFF2 files, starting from Google Fonts' Simplified Chinese slices; Latin letters, punctuation and full-width forms all go in the first, most frequent slice, so that kerning and punctuation squeezing work between them.
 
 所有改动见[FONTLOG.txt](FONTLOG.txt)。
 
@@ -73,24 +75,27 @@ Requires [uv](https://docs.astral.sh/uv/) and git.
 uv run eliksiro-sans fetch
 uv run eliksiro-sans merge
 uv run eliksiro-sans build
+uv run eliksiro-sans package
 uv run eliksiro-sans verify
 ```
 
 - `fetch`：把上游源文件取到`upstream/`，并核对内容与预期一致。
 - `merge`：把IBM Plex Sans SC的补充字形并进械黑GB三个母版的副本，做好各项修正，改用Eliksiro Sans的名称和度量，写到`work/merged/`。
 - `build`：把它们编译成CFF2可变字体`out/EliksiroSans-VF.otf`，再压缩出供网页使用的`out/EliksiroSans-VF.woff2`，并附上`OFL.txt`和`FONTLOG.txt`。同样的源文件总是编出逐字节相同的字体文件。
-- `verify`：把编译结果与上游字体比对：械黑GB部分对照官方字体，补充层在8个字重上对照IBM的静态字体，并检查全部字形的插值；另外核对WOFF2与OTF是同一款字体。
+- `package`：把字体切成网页用的WOFF2切片，配上CSS入口，写成npm包`out/npm/`。
+- `verify`：把编译结果与上游字体比对：械黑GB部分对照官方字体，补充层在8个字重上对照IBM的静态字体，并检查全部字形的插值；另外核对WOFF2与OTF是同一款字体，以及npm包的切片不重不漏、与完整字体一致。
 
 <!-- 分开中英两个列表 | keeps the two lists apart -->
 
 - `fetch` fetches the upstream sources into `upstream/` and checks that their contents are exactly as expected.
 - `merge` adds the IBM Plex Sans SC supplement to copies of the three Frex Sans GB masters, applies the fixes and gives them Eliksiro Sans's names and metrics, in `work/merged/`.
 - `build` compiles them into the CFF2 variable font `out/EliksiroSans-VF.otf`, compresses it into `out/EliksiroSans-VF.woff2` for the web, and adds `OFL.txt` and `FONTLOG.txt`. The same sources always give byte-identical font files.
-- `verify` checks the built font against the upstream fonts: the Frex Sans GB part against the official font, the supplement against IBM's static fonts at eight weights, and the interpolation of every glyph; it also checks that the WOFF2 holds the same font as the OTF.
+- `package` slices the font into WOFF2 files for the web and writes them, with a CSS entry, as the npm package in `out/npm/`.
+- `verify` checks the built font against the upstream fonts: the Frex Sans GB part against the official font, the supplement against IBM's static fonts at eight weights, and the interpolation of every glyph; it also checks that the WOFF2 holds the same font as the OTF, and that the npm package's slices hold every code point once and match the full font.
 
-<sub>在M1 Pro（10核）上实测：`fetch`下载约1.1 GB；`merge`约3.5分钟，内存峰值约4 GB；`build`约3分钟；`verify`约3.5分钟。</sub>
+<sub>在M1 Pro（10核）上实测：`fetch`下载约1.1 GB；`merge`约3.5分钟，内存峰值约4 GB；`build`约3分钟；`package`约15秒；`verify`约4分钟。</sub>
 
-<sub>Measured on an M1 Pro (10-core): `fetch` downloads about 1.1 GB; `merge` takes about 3.5 minutes, with memory peaking at about 4 GB; `build` about 3 minutes; `verify` about 3.5 minutes.</sub>
+<sub>Measured on an M1 Pro (10-core): `fetch` downloads about 1.1 GB; `merge` takes about 3.5 minutes, with memory peaking at about 4 GB; `build` about 3 minutes; `package` about 15 seconds; `verify` about 4 minutes.</sub>
 
 ## 授权 | License
 
@@ -103,9 +108,11 @@ The font is licensed under the SIL Open Font License, Version 1.1; see [OFL.txt]
 - VentusUta：原作者（月铃）在字体方面的引路人。
 - 械黑计划小组：制作了[械黑GB](https://github.com/maoken-fonts/frex-sans)，Eliksiro Sans以它为主体。
 - IBM：设计并开源了[IBM Plex](https://github.com/IBM/plex)。补充的字形取自IBM Plex Sans SC，圆点取自IBM Plex Sans。
+- Google Fonts：网页切片以其[简体中文切片表](https://github.com/googlefonts/nam-files)为底。
 
 <!-- 分开中英两个列表 | keeps the two lists apart -->
 
 - VentusUta, who guided the original author (Moonchime) into the world of fonts.
 - The Frex Sans Project Authors, for [Frex Sans GB](https://github.com/maoken-fonts/frex-sans), on which Eliksiro Sans is built.
 - IBM, for designing [IBM Plex](https://github.com/IBM/plex) and releasing it as open source. The added characters come from IBM Plex Sans SC, and the bullet from IBM Plex Sans.
+- Google Fonts, for the [Simplified Chinese slices](https://github.com/googlefonts/nam-files) that the web slices start from.

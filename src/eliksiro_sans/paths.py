@@ -8,6 +8,7 @@ WORK = ROOT / "work"
 MERGED = WORK / "merged"
 COMPILED = WORK / "compiled"
 OUT = ROOT / "out"
+NPM = OUT / "npm"
 
 FREX_CLONE = UPSTREAM / "frex-sans"
 FREX_SOURCES = FREX_CLONE / "sources" / "FrexSansGBVF"
@@ -20,6 +21,8 @@ PLEX_OTF = PLEX_CLONE / "packages/plex-sans-sc/fonts/complete/otf/unhinted"
 PLEX_SANS_OTF = PLEX_CLONE / "packages/plex-sans/fonts/complete/otf"
 PLEX_SOURCES = UPSTREAM / "plex-sc-sources" / "sources"
 PLEX_GLYPHS = PLEX_SOURCES / "masters" / "IBM Plex Sans SC.glyphs"
+
+GOOGLE_SLICES = UPSTREAM / "simplified-chinese_default.txt"
 
 
 def plex_static(style: str) -> Path:

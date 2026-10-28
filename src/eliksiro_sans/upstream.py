@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .paths import (
     FREX_CLONE,
+    GOOGLE_SLICES,
     PLEX_CLONE,
     PLEX_OTF,
     PLEX_SANS_OTF,
@@ -28,6 +29,14 @@ PLEX_SOURCES_URL = (
 )
 PLEX_SOURCES_SHA256 = "136363a1fa695df192fe05a6b6527ae61dbae8ccc311920e5fe96cb4f73a0ea7"
 PLEX_SOURCES_ZIP = UPSTREAM / "plex-sc-sources.zip"
+# Google Fonts' Simplified Chinese web slices: the npm package's start from them.
+GOOGLE_SLICES_URL = (
+    "https://raw.githubusercontent.com/googlefonts/nam-files/"
+    "80f8e537a43ff6754810666709740dc18de8a17f/slices/simplified-chinese_default.txt"
+)
+GOOGLE_SLICES_SHA256 = (
+    "cd022036048744a478b2d261131a90400bacbb9098b83efd0360f1e44122c2c1"
+)
 
 log = logging.getLogger(__name__)
 
@@ -72,14 +81,16 @@ def download(url: str, dest: Path, attempts: int = 3) -> None:
     part.replace(dest)
 
 
+def check_sha256(path: Path, expected: str) -> None:
+    with path.open("rb") as f:
+        digest = hashlib.file_digest(f, "sha256").hexdigest()
+    if digest != expected:
+        sys.exit(f"{path.name} has SHA-256 {digest}, expected {expected}")
+
+
 def fetch_plex_sources() -> None:
     download(PLEX_SOURCES_URL, PLEX_SOURCES_ZIP)
-    with PLEX_SOURCES_ZIP.open("rb") as f:
-        digest = hashlib.file_digest(f, "sha256").hexdigest()
-    if digest != PLEX_SOURCES_SHA256:
-        sys.exit(
-            f"{PLEX_SOURCES_ZIP.name} has SHA-256 {digest}, expected {PLEX_SOURCES_SHA256}"
-        )
+    check_sha256(PLEX_SOURCES_ZIP, PLEX_SOURCES_SHA256)
     medium = "sources/instances/postscript/IBM Plex Sans SC-Medium.glyphs"
     with zipfile.ZipFile(PLEX_SOURCES_ZIP) as z:
         for name in z.namelist():
@@ -97,3 +108,6 @@ def fetch() -> None:
     clone(PLEX_REPO, PLEX_COMMIT, PLEX_CLONE, sparse)
     log.info("IBM Plex Sans SC sources")
     fetch_plex_sources()
+    log.info("Google Fonts' Simplified Chinese slices")
+    download(GOOGLE_SLICES_URL, GOOGLE_SLICES)
+    check_sha256(GOOGLE_SLICES, GOOGLE_SLICES_SHA256)

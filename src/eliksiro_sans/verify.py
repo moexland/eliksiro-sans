@@ -2,12 +2,14 @@
 
 import io
 import logging
+import re
 import sys
 from typing import Any
 
 from fontTools.designspaceLib import DesignSpaceDocument
 from fontTools.misc.xmlWriter import XMLWriter
 from fontTools.pens.boundsPen import BoundsPen
+from fontTools.subset import parse_unicodes
 from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables.otBase import BaseTTXConverter
 from fontTools.varLib import interpolatable
@@ -16,7 +18,8 @@ from .build import FILENAME, WOFF2_FILENAME
 from .fixes import CONTOUR_ORDERS, START_POINTS
 from .fontinfo import FAMILY, WEIGHTS
 from .merge import EQUIVALENTS, MASTERS
-from .paths import FREX_TTF, MERGED, OUT, plex_static
+from .package import CSS
+from .paths import FREX_TTF, MERGED, NPM, OUT, plex_static
 from .sources import best_cmap, supplement_codepoints
 
 # How far outlines may stray, in font units of bounds and advance. From Frex's TrueType
@@ -187,6 +190,63 @@ def check_ibm(checks: Checks, font: TTFont) -> None:
         )
 
 
+def check_package(checks: Checks, font: TTFont) -> None:
+    cmap = best_cmap(font)
+    faces = re.findall(
+        r'src: url\("\./([^"]+)"\) format\("woff2"\);\s*unicode-range: ([^;]+);',
+        (NPM / CSS).read_text(),
+    )
+    files = {p.relative_to(NPM).as_posix() for p in (NPM / "woff2").iterdir()}
+    axes = [
+        (a.axisTag, a.minValue, a.defaultValue, a.maxValue) for a in font["fvar"].axes
+    ]
+    weights = (100, 400, 700)
+    ours = {w: font.getGlyphSet(location={"wght": w}) for w in weights}
+    seen: set[int] = set()
+    overlap, mismatched, incomplete, off = set(), [], [], []
+    for path, ranges in faces:
+        part = TTFont(NPM / path)
+        part_cmap = best_cmap(part)
+        overlap |= seen & set(part_cmap)
+        seen |= set(part_cmap)
+        if set(part_cmap) != set(parse_unicodes(ranges)):
+            mismatched.append(path)
+        part_axes = [
+            (a.axisTag, a.minValue, a.defaultValue, a.maxValue)
+            for a in part["fvar"].axes
+        ]
+        if part_axes != axes or "avar" not in part or "STAT" not in part:
+            incomplete.append(path)
+        for w in weights:
+            theirs = part.getGlyphSet(location={"wght": w})
+            off += [
+                f"U+{cp:04X}@{w}"
+                for cp, name in part_cmap.items()
+                if difference(ours[w], cmap[cp], theirs, name) > 0
+            ]
+    checks.check(
+        "npm package: the slices hold each code point of the font exactly once",
+        seen == set(cmap) and not overlap and {p for p, _ in faces} == files,
+        f"{len(faces)} slices"
+        + (f"; in more than one: {sorted(overlap)[:10]}" if overlap else ""),
+    )
+    checks.check(
+        "npm package: each slice's unicode-range is its cmap",
+        not mismatched,
+        str(mismatched[:10]),
+    )
+    checks.check(
+        "npm package: each slice has the font's fvar axis, avar and STAT",
+        not incomplete,
+        str(incomplete[:10]),
+    )
+    checks.check(
+        f"npm package: slices' glyphs equal the font's at {', '.join(map(str, weights))}",
+        not off,
+        str(off[:10]),
+    )
+
+
 def check_interpolation(checks: Checks) -> None:
     path = MERGED / f"{FAMILY}.designspace"
     unexported = set(DesignSpaceDocument.fromfile(path).lib["public.skipExportGlyphs"])
@@ -218,6 +278,8 @@ def verify() -> None:
     check_frex(checks, font, frex)
     log.info("against IBM Plex Sans SC's static fonts")
     check_ibm(checks, font)
+    log.info("the npm package")
+    check_package(checks, font)
     log.info("interpolatable")
     check_interpolation(checks)
     if checks.failed:

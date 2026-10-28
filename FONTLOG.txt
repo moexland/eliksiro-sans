@@ -15,7 +15,9 @@ by The Frex Sans Project Authors, with the characters it lacks taken from
 IBM Plex Sans SC 1.1.0 by IBM Corp.
 
 It comes as EliksiroSans-VF.otf, an OpenType font with CFF2 outlines, and as
-EliksiroSans-VF.woff2, the same font compressed for the web.
+EliksiroSans-VF.woff2, the same font compressed for the web. For websites, the
+npm package @moexland/eliksiro-sans has it in WOFF2 slices with a CSS entry, so
+that browsers download only the slices a page uses.
 
 Eliksiro Sans is licensed under the SIL Open Font License, Version 1.1; see
 OFL.txt. It is built with the pipeline at
