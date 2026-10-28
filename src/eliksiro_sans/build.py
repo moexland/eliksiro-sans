@@ -15,7 +15,8 @@ from fontTools.ttLib import TTFont
 from .fontinfo import FAMILY
 from .paths import COMPILED, MERGED, OUT, ROOT
 
-FILENAME = f"{FAMILY.replace(' ', '')}-VF.otf"
+STEM = f"{FAMILY.replace(' ', '')}-VF"
+FILENAME, WOFF2_FILENAME = f"{STEM}.otf", f"{STEM}.woff2"
 # head.modified. Fixed, so that the same sources always give the same bytes.
 MODIFIED = datetime(2026, 10, 27, tzinfo=UTC)
 DOCUMENTS = ("OFL.txt", "FONTLOG.txt")
@@ -40,7 +41,8 @@ def win_metrics(font: TTFont) -> tuple[int, int]:
 
 
 def build(out_dir: Path = OUT) -> Path:
-    """Compile the CFF2 variable font into out_dir, next to its OFL and FONTLOG."""
+    """Compile the CFF2 variable font into out_dir, as OTF and WOFF2, next to its OFL
+    and FONTLOG."""
     compiled = COMPILED / FILENAME
     log.info("compile with fontmake")
     subprocess.run(
@@ -59,6 +61,9 @@ def build(out_dir: Path = OUT) -> Path:
     vars(font["OS/2"]).update(usWinAscent=ascent, usWinDescent=descent)
     out_dir.mkdir(parents=True, exist_ok=True)
     font.save(out_dir / FILENAME)
+    log.info("compress to WOFF2")
+    font.flavor = "woff2"
+    font.save(out_dir / WOFF2_FILENAME)
     for name in DOCUMENTS:
         shutil.copy(ROOT / name, out_dir)
     return out_dir / FILENAME

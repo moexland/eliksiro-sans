@@ -15,7 +15,7 @@ COMMANDS: dict[str, tuple[Callable[[], object], str]] = {
         merge.merge,
         "write Eliksiro Sans's masters: Frex's, with the IBM Plex Sans SC supplement",
     ),
-    "build": (build.build, "compile the variable font into out/"),
+    "build": (build.build, "compile the variable font into out/, as OTF and WOFF2"),
     "verify": (verify.verify, "check the built font against the upstream fonts"),
 }
 

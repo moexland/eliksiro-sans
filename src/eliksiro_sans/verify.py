@@ -12,7 +12,7 @@ from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables.otBase import BaseTTXConverter
 from fontTools.varLib import interpolatable
 
-from .build import FILENAME
+from .build import FILENAME, WOFF2_FILENAME
 from .fixes import CONTOUR_ORDERS, START_POINTS
 from .fontinfo import FAMILY, WEIGHTS
 from .merge import EQUIVALENTS, MASTERS
@@ -115,6 +115,25 @@ def check_names(checks: Checks, font: TTFont) -> None:
     )
 
 
+def check_woff2(checks: Checks, font: TTFont) -> None:
+    woff2 = TTFont(OUT / WOFF2_FILENAME)
+    assert font.reader is not None and woff2.reader is not None
+    tags = sorted(font.reader.keys())
+    differ = [t for t in tags if t != "head" and font.reader[t] != woff2.reader[t]]
+    # head differs by design: WOFF2 sets bit 11 of its flags, and checkSumAdjustment
+    # sums the whole font.
+    head, woff2_head = (
+        {k: v for k, v in vars(f["head"]).items() if k != "checkSumAdjustment"}
+        for f in (font, woff2)
+    )
+    head["flags"] |= 1 << 11
+    checks.check(
+        "WOFF2: the OTF's tables, compressed",
+        sorted(woff2.reader.keys()) == tags and not differ and head == woff2_head,
+        f"{len(tags)} tables" + (f"; differ: {differ}" if differ else ""),
+    )
+
+
 def check_frex(checks: Checks, font: TTFont, frex: TTFont) -> None:
     cmap, frex_cmap = best_cmap(font), best_cmap(frex)
     expected = set(frex_cmap) | set(supplement_codepoints()) | set(EQUIVALENTS)
@@ -194,6 +213,7 @@ def verify() -> None:
     font, frex = TTFont(OUT / FILENAME), TTFont(FREX_TTF)
     checks = Checks()
     check_names(checks, font)
+    check_woff2(checks, font)
     log.info("against Frex Sans GB")
     check_frex(checks, font, frex)
     log.info("against IBM Plex Sans SC's static fonts")

@@ -14,6 +14,9 @@ from Thin (100) to Bold (700). It is a modified version of Frex Sans GB 1.100
 by The Frex Sans Project Authors, with the characters it lacks taken from
 IBM Plex Sans SC 1.1.0 by IBM Corp.
 
+It comes as EliksiroSans-VF.otf, an OpenType font with CFF2 outlines, and as
+EliksiroSans-VF.woff2, the same font compressed for the web.
+
 Eliksiro Sans is licensed under the SIL Open Font License, Version 1.1; see
 OFL.txt. It is built with the pipeline at
 https://github.com/moexland/eliksiro-sans.

@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.15"
 dependencies = [
     "attrs==26.1.0",
+    "brotli==1.2.1",
     "fontmake==3.12.2",
     "fontmath==0.10.0",
     "fonttools==4.66.1",
