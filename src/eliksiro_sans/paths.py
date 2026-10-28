@@ -17,9 +17,14 @@ FREX_TTF = FREX_CLONE / "fonts" / "variable" / "Frex Sans GB[wght].ttf"  # offic
 
 PLEX_CLONE = UPSTREAM / "plex"
 PLEX_OTF = PLEX_CLONE / "packages/plex-sans-sc/fonts/complete/otf/unhinted"
+PLEX_SANS_OTF = PLEX_CLONE / "packages/plex-sans/fonts/complete/otf"
 PLEX_SOURCES = UPSTREAM / "plex-sc-sources" / "sources"
 PLEX_GLYPHS = PLEX_SOURCES / "masters" / "IBM Plex Sans SC.glyphs"
 
 
 def plex_static(style: str) -> Path:
     return PLEX_OTF / f"IBMPlexSansSC-{style}.otf"
+
+
+def plex_sans_static(style: str) -> Path:
+    return PLEX_SANS_OTF / f"IBMPlexSans-{style}.otf"

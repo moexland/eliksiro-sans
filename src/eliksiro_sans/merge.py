@@ -7,19 +7,23 @@ from pathlib import Path
 import glyphsLib
 import ufoLib2
 
-from . import fontinfo
+from . import fixes, fontinfo
 from .paths import FREX_MASTERS, MERGED, PLEX_GLYPHS
 from .sources import load_glyphs, supplement_codepoints
 
 MASTERS = ("Thin", "Regular", "Bold")
 
-# Supplement code points whose characters Frex already has under another code point.
+# Code points that share the glyph of another code point for the same character:
+# compatibility ideographs and GB 18030 private-use code points.
 EQUIVALENTS = {
-    0xF979: 0x51C9,  # 凉, compatibility ideograph
-    0xFA0C: 0x5140,  # 兀, compatibility ideograph
-    **{0xE790 + i: 0xFE13 + i for i in range(6)},  # GB 18030 private use: ︓︔︕︖︗︘
-    0xE7C7: 0x1E3F,  # GB 18030 private use: ḿ
-    0xE7C8: 0x01F9,  # GB 18030 private use: ǹ
+    0xF979: 0x51C9,  # 凉
+    0xFA0C: 0x5140,  # 兀
+    0xF995: 0x79CA,  # 秊, in GBK but in neither upstream font
+    0xF9E7: 0x88CF,  # 裏, likewise
+    0xF9F1: 0x96A3,  # 隣, likewise
+    **{0xE790 + i: 0xFE13 + i for i in range(6)},  # ︓︔︕︖︗︘
+    0xE7C7: 0x1E3F,  # ḿ
+    0xE7C8: 0x01F9,  # ǹ
 }
 # What add-ufo-vert-info.py gives every Frex glyph.
 VERTICAL_ORIGIN, VERTICAL_ADVANCE = 880, 1000
@@ -55,12 +59,6 @@ def merge(out_dir: Path = MERGED) -> Path:
     for master in MASTERS:
         log.info("merge into %s", master)
         font = ufoLib2.Font.open(FREX_MASTERS / f"{master}.ufo", lazy=False)
-        by_codepoint: dict[int, str] = {}
-        for glyph in font:
-            assert glyph.name is not None
-            by_codepoint.update(dict.fromkeys(glyph.unicodes, glyph.name))
-        for cp, existing in EQUIVALENTS.items():
-            font[by_codepoint[existing]].unicodes.append(cp)
         for name, codepoints in glyphs.items():
             if name in font:
                 raise ValueError(f"{name} is in both Frex and IBM's source")
@@ -70,6 +68,13 @@ def merge(out_dir: Path = MERGED) -> Path:
             glyph.lib["public.verticalOrigin"] = VERTICAL_ORIGIN
             font.layers.defaultLayer.insertGlyph(glyph, name, copy=False)
         font.glyphOrder = [*font.glyphOrder, *glyphs]
+        by_codepoint: dict[int, str] = {}
+        for glyph in font:
+            assert glyph.name is not None
+            by_codepoint.update(dict.fromkeys(glyph.unicodes, glyph.name))
+        for cp, existing in EQUIVALENTS.items():
+            font[by_codepoint[existing]].unicodes.append(cp)
+        fixes.apply(font, master)
         fontinfo.apply(font.info)
         font.save(out_dir / f"{master}.ufo", overwrite=True)
 

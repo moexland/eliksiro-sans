@@ -9,7 +9,14 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-from .paths import FREX_CLONE, PLEX_CLONE, PLEX_OTF, PLEX_SOURCES, UPSTREAM
+from .paths import (
+    FREX_CLONE,
+    PLEX_CLONE,
+    PLEX_OTF,
+    PLEX_SANS_OTF,
+    PLEX_SOURCES,
+    UPSTREAM,
+)
 
 FREX_REPO = "https://github.com/maoken-fonts/frex-sans.git"
 FREX_COMMIT = "2ce4353c796c3ed8c3f05e9334b653345130bd03"  # tag v1.100
@@ -35,14 +42,15 @@ def _git(*args: str | Path) -> str:
     return result.stdout.strip()
 
 
-def clone(url: str, commit: str, dest: Path, sparse: Path | None = None) -> None:
-    """With sparse, only that directory is checked out and its files downloaded."""
+def clone(url: str, commit: str, dest: Path, sparse: tuple[Path, ...] = ()) -> None:
+    """With sparse, only those directories are checked out and their files downloaded."""
     if not dest.exists():
         partial = ["--filter=blob:none", "--no-checkout"] if sparse else []
         _git("clone", "--depth", "1", "--revision", commit, *partial, url, dest)
-        if sparse:
-            _git("-C", dest, "sparse-checkout", "set", sparse.as_posix())
-            _git("-C", dest, "checkout")
+    if sparse:
+        # Also on an existing clone, which may predate a directory in the list.
+        _git("-C", dest, "sparse-checkout", "set", *(p.as_posix() for p in sparse))
+        _git("-C", dest, "checkout")
     head = _git("-C", dest, "rev-parse", "HEAD")
     if head != commit:
         sys.exit(f"{dest} is at {head}, expected {commit}; remove it to fetch again")
@@ -84,7 +92,8 @@ def fetch() -> None:
     UPSTREAM.mkdir(exist_ok=True)
     log.info("Frex Sans")
     clone(FREX_REPO, FREX_COMMIT, FREX_CLONE)
-    log.info("IBM Plex Sans SC static fonts")
-    clone(PLEX_REPO, PLEX_COMMIT, PLEX_CLONE, sparse=PLEX_OTF.relative_to(PLEX_CLONE))
+    log.info("IBM Plex Sans SC and IBM Plex Sans static fonts")
+    sparse = tuple(path.relative_to(PLEX_CLONE) for path in (PLEX_OTF, PLEX_SANS_OTF))
+    clone(PLEX_REPO, PLEX_COMMIT, PLEX_CLONE, sparse)
     log.info("IBM Plex Sans SC sources")
     fetch_plex_sources()

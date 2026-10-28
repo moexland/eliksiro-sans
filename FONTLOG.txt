@@ -23,11 +23,19 @@ ChangeLog
 ---------
 
 27 October 2026 (Moonchime) Eliksiro Sans Version 0.100
-- Added the 16,291 code points of IBM Plex Sans SC that Frex Sans GB lacks.
+- Added the 16,292 code points of IBM Plex Sans SC that Frex Sans GB lacks.
   Two compatibility ideographs and eight GB 18030 private-use code points map
-  to the Frex Sans GB glyphs of the same characters; the others take the
-  IBM Plex Sans SC glyphs, with Frex Sans GB's vertical origin (880) and
-  vertical advance (1000).
+  to the Frex Sans GB glyphs of the same characters; U+22EF is a copy of
+  Frex Sans GB's centred U+2026, as IBM's sources have no glyph for it; the
+  others take the IBM Plex Sans SC glyphs, with Frex Sans GB's vertical origin
+  (880) and vertical advance (1000).
+- Mapped U+F995, U+F9E7 and U+F9F1, compatibility ideographs in GBK, to the
+  glyphs of U+79CA, U+88CF and U+96A3.
+- U+2022 is now a bullet: IBM Plex Sans's, enlarged by 5% as the Latin of
+  Frex Sans GB is. It used to be the Latin middle dot.
+- Fixed contours that interpolated wrongly between masters: the start points
+  in U+6961, U+6B1D and U+9476 from IBM Plex Sans SC and in U+7296 from
+  Frex Sans GB, and the contour order in U+2504 from Frex Sans GB.
 - Renamed to Eliksiro Sans.
 - Line metrics: ascender 880, descender -120 and line gap 500 in both hhea
   and OS/2, with USE_TYPO_METRICS on, so that ideographs sit in the middle of
@@ -44,3 +52,4 @@ D: Frex Sans GB, which Eliksiro Sans is based on
 N: IBM Corp.
 W: https://github.com/IBM/plex
 D: IBM Plex Sans SC, the source of the characters added to Frex Sans GB
+D: IBM Plex Sans, the source of the bullet
