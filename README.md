@@ -65,6 +65,36 @@ For readers who enjoy the nerdy details:
 
 [FONTLOG.txt](FONTLOG.txt) lists all the changes.
 
+## 下载与使用 | Download and Usage
+
+### 桌面 | Desktop
+
+从[GitHub Releases](https://github.com/moexland/eliksiro-sans/releases/latest)下载最新版本的压缩包，安装其中的`EliksiroSans-VF.otf`即可。
+
+Download the zip of the latest version from [GitHub Releases](https://github.com/moexland/eliksiro-sans/releases/latest) and install `EliksiroSans-VF.otf` from it.
+
+### 网页 | Web
+
+推荐使用npm包[`@moexland/eliksiro-sans`](https://www.npmjs.com/package/@moexland/eliksiro-sans)：字体已按字频切片，浏览器只下载页面用到的部分。在CSS里引入它需要能解析npm包的构建工具，比如Vite或Tailwind CSS。
+
+The npm package [`@moexland/eliksiro-sans`](https://www.npmjs.com/package/@moexland/eliksiro-sans) is recommended: the font is sliced by character frequency, so browsers download only what a page uses. Importing it in CSS needs a build tool that resolves npm packages, such as Vite or Tailwind CSS.
+
+```bash
+npm install @moexland/eliksiro-sans
+```
+
+```css
+@import "@moexland/eliksiro-sans";
+
+body {
+  font-family: "Eliksiro Sans", sans-serif;
+}
+```
+
+压缩包里的`EliksiroSans-VF.woff2`是未切片的完整字体，约9.6 MB，只适合不在意下载体积的场合。
+
+The `EliksiroSans-VF.woff2` in the zip is the whole font, unsliced, at about 9.6 MB; use it only where download size does not matter.
+
 ## 构建 | Build
 
 需要[uv](https://docs.astral.sh/uv/)和git。
