@@ -21,7 +21,7 @@ from .sources import best_cmap
 NAME = "@moexland/eliksiro-sans"
 CSS = "eliksiro-sans.css"
 # npm's patch version, for releases that change the packaging but not the font.
-PATCH = 0
+PATCH = 1
 # GPOS features such as kern and chws work only within a file, so these blocks,
 # Latin, punctuation and full-width forms, all go in the first slice.
 FIRST_BLOCKS = [(0x20, 0xFF), (0x2000, 0x206F), (0x3000, 0x303F), (0xFF00, 0xFFEF)]
@@ -124,6 +124,8 @@ def package_json(font: TTFont) -> dict:
         "exports": {
             ".": {"style": f"./{CSS}", "default": f"./{CSS}"},
             "./otf": f"./{FILENAME}",
+            # For users' own @font-face rules, such as one for U+00B7 alone.
+            "./woff2/*": "./woff2/*",
             "./package.json": "./package.json",
         },
         "files": [CSS, "woff2/", FILENAME, *DOCUMENTS],
